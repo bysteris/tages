@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Первое бонусное задание</title>
+</head>
+
+<body>
+    <script>
+        async function listPosts() {
+
+            let responseUserList = await fetch('https://jsonplaceholder.typicode.com/users'),
+                responsePostsList = await fetch('http://jsonplaceholder.typicode.com/posts'),
+                arrUsers = await responseUserList.json(),
+                arrPosts = await responsePostsList.json();
+
+            arrUsers = arrUsers.map((users) => {
+                return {
+                    id: users.id,
+                    name: users.name,
+                    email: users.email,
+                    address: users.address.city + ", " + users.address.street + ", " + users.address.suite,
+                    website: "https://" + users.website,
+                    company: users.company.name,
+                    posts: [],
+                };
+            });
+
+
+
+            arrUsers.forEach((users) => {
+                i = 0;
+                arrPosts.forEach((posts) => {
+                    if (users.id === posts.userId) {
+                        users.posts[i] = {
+                            id: posts.id,
+                            title: posts.title,
+                            title_crop: posts.title.slice(0, 20) + "...",
+                            body: posts.body,
+                        }
+                    }
+
+                    if (users.id == posts.userId && users.id == 2) {
+                        users.posts[i] = {
+                            id: posts.id,
+                            title: posts.title,
+                            title_crop: posts.title.slice(0, 20) + "...",
+                            body: posts.body,
+                            comments: []
+                        }
+                    }
+
+                    users.posts = users.posts.filter((e) => {
+                        if (e != null) {
+                            return e
+                        }
+                    });
+                    i++
+                });
+            });
+
+
+
+
+            arrUsers[1].posts.forEach(function (posts) {
+                let j = 0;
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', 'http://jsonplaceholder.typicode.com/posts/' + posts.id + "/comments", false);
+
+                xhr.send();
+
+
+                let comments = xhr.response;
+
+                let dataComments = JSON.parse(comments);
+
+                dataComments.forEach(function (comments) {
+
+
+                    posts.comments[j] = {
+                        id: comments.id,
+                        postId: comments.postId,
+                        name: comments.name,
+                        email: comments.email,
+                        body: comments.body,
+                    };
+                    posts.comments = posts.comments.filter((e) => {
+                        if (e != null) {
+                            return e
+                        }
+                    });
+
+                    j++
+                })
+            });
+
+            console.log(JSON.stringify(arrUsers, null, "\t"));
+
+        } listPosts();
+    </script>
+</body>
+
+</html>
